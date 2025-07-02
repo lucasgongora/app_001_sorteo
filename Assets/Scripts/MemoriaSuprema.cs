@@ -6,6 +6,7 @@ namespace app_001
 {
     public class MemoriaSuprema : MonoBehaviour
     {
+        public static MemoriaSuprema instance;
 
         public bool premium = false;
         public bool speedFast = false;
@@ -26,6 +27,19 @@ namespace app_001
         public string[] grupo_09;
         public string[] grupo_10;
 
+
+        void Awake()
+        {
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
         // Start is called before the first frame update
         void Start()
         {
@@ -36,6 +50,15 @@ namespace app_001
         void Update()
         {
         
+        }
+
+        public void GuardarDatosPersistentes()
+        {
+
+        }
+        public void RecuperarDatosPersistentes()
+        {
+            
         }
     }
 }

@@ -40,5 +40,11 @@ namespace app_001
                              Application.Quit();
             #endif
         }
+
+        /************ SERVICIO GUARDADO DE DATOS PERSISTENTES  ****************************************************************************** */
+        public void GuardaDatosPersistentesOpciones()
+        {
+
+        }
     }
 }
