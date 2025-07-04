@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -43,9 +44,54 @@ namespace app_001
             
         }
 
-        public void GestorDeIntegrantes(string grupo, string[] integrantes)
+        public void GestorDeIntegrantes(int index, string grupo, string integrante)
         {
-
+            if (grupos[index] == grupo)
+            {
+                switch (index)
+                {
+                    case 0:
+                        Array.Resize(ref grupo_00, grupo_00.Length + 1);
+                        grupo_00[grupo_00.Length - 1] = integrante;
+                        break;
+                    case 1:
+                        Array.Resize(ref grupo_01, grupo_01.Length + 1);
+                        grupo_01[grupo_01.Length - 1] = integrante;
+                        break;
+                    case 2:
+                        Array.Resize(ref grupo_02, grupo_02.Length + 1);
+                        grupo_02[grupo_02.Length - 1] = integrante;
+                        break;
+                    case 3:
+                        Array.Resize(ref grupo_03, grupo_03.Length + 1);
+                        grupo_03[grupo_03.Length - 1] = integrante;
+                        break;
+                    case 4:
+                        Array.Resize(ref grupo_04, grupo_04.Length + 1);
+                        grupo_04[grupo_04.Length - 1] = integrante;
+                        break;
+                    case 5:
+                        Array.Resize(ref grupo_05, grupo_05.Length + 1);
+                        grupo_05[grupo_05.Length - 1] = integrante;
+                        break;
+                    case 6:
+                        Array.Resize(ref grupo_06, grupo_06.Length + 1);
+                        grupo_06[grupo_06.Length - 1] = integrante;
+                        break;
+                    case 7:
+                        Array.Resize(ref grupo_07, grupo_07.Length + 1);
+                        grupo_07[grupo_07.Length - 1] = integrante;
+                        break;
+                    case 8:
+                        Array.Resize(ref grupo_08, grupo_08.Length + 1);
+                        grupo_08[grupo_08.Length - 1] = integrante;
+                        break;
+                    case 9:
+                        Array.Resize(ref grupo_09, grupo_09.Length + 1);
+                        grupo_09[grupo_09.Length - 1] = integrante;
+                        break;
+                }
+            };
         }
 
         public void AgregarGrupo(string nombreGrupo)
@@ -167,6 +213,8 @@ namespace app_001
             string _grupo_07 = string.Join(",", grupo_07);
             string _grupo_08 = string.Join(",", grupo_08);
             string _grupo_09 = string.Join(",", grupo_09);
+            string _grupoSeleccionado = grupoSeleccionado;
+            int _indiceDropDownGrupoSeleccionado = this.indiceDropDownGrupoSeleccionado;
             PlayerPrefs.SetString("grupos", _grupos);
             PlayerPrefs.SetString("grupo_00", _grupo_00);
             PlayerPrefs.SetString("grupo_01", _grupo_01);
@@ -178,6 +226,8 @@ namespace app_001
             PlayerPrefs.SetString("grupo_07", _grupo_07);
             PlayerPrefs.SetString("grupo_08", _grupo_08);
             PlayerPrefs.SetString("grupo_09", _grupo_09);
+            PlayerPrefs.SetString("grupoSeleccionado", _grupoSeleccionado);
+            PlayerPrefs.SetInt("indiceDropDownGrupoSeleccionado", _indiceDropDownGrupoSeleccionado);
             PlayerPrefs.Save();
 
         }
@@ -196,6 +246,8 @@ namespace app_001
             string _grupo_07 = PlayerPrefs.GetString("grupo_07");
             string _grupo_08 = PlayerPrefs.GetString("grupo_08");
             string _grupo_09 = PlayerPrefs.GetString("grupo_09");
+            string _grupoSeleccionado = PlayerPrefs.GetString("grupoSeleccionado");
+            int _indiceDropDownGrupoSeleccionado = PlayerPrefs.GetInt("indiceDropDownGrupoSeleccionado", 0);
             grupos = _grupos.Split(',');
             grupo_00 = _grupo_00.Split(',');
             grupo_01 = _grupo_01.Split(',');
@@ -207,6 +259,8 @@ namespace app_001
             grupo_07 = _grupo_07.Split(',');
             grupo_08 = _grupo_08.Split(',');
             grupo_09 = _grupo_09.Split(',');
-        }
+            grupoSeleccionado = _grupoSeleccionado;
+            indiceDropDownGrupoSeleccionado = _indiceDropDownGrupoSeleccionado;
+        }   
     }
 }

@@ -68,8 +68,14 @@ namespace app_001
         public int indexDropdown;
         public string valueDropdown;
         public bool edicionGrupo;
+        public bool configGrupo;
         public string[] auxiliarGrupo = new string[10]; // Array para almacenar los grupos
+
+        public GameObject botonBT;
+        public Transform contenidoScrollView;
+
         private string[] auxiliarIntegrantes;
+        private string auxiliarGrupoEnUso;
         /****************************************************************************************** */
 
         private void Awake()
@@ -82,27 +88,28 @@ namespace app_001
             {
                 gestorDeGrupos.RecuperacionDatosPersistentesGrupos();
             }
-            
-            sorteoTipo = "numero";
-            /*
-            if (VerificacionDatosVacios() == true)
-            {
-                CargaGruposPorDefecto();
-            }  */
+            //sorteoTipo = "grupo";
+            RecuperacionDatosPersistentesGenerales();
+            CargaDatosGenerales(); 
 
         }
         // Start is called before the first frame update
         void Start()
         {
-            
-            //gestorDeGrupos.RecuperacionDatosPersistentesGrupos(); 
-            //CargaTodosLosGruposAlDropdown();
+            configGrupo = false;    
         }
 
         // Update is called once per frame
         void Update()
         {
-        
+            if (configGrupo)
+            {
+                grupoActualmenteSeleccionado = desplegableGrupos.options[desplegableGrupos.value].text;
+                gestorDeGrupos.grupoSeleccionado = grupoActualmenteSeleccionado;
+                indexDropdown = desplegableGrupos.value;
+                gestorDeGrupos.indiceDropDownGrupoSeleccionado = indexDropdown;
+            }
+            
         }
         public bool VerificacionDatosVacios()
         {
@@ -149,7 +156,7 @@ namespace app_001
         public void BotonConfiguracionSorteos()
         {
             fondoDisufo.SetActive(true);
-            
+            configGrupo = true;
             if (sorteoTipo == "numero")
             { 
                 ventanaConfigNumero.SetActive(true);
@@ -163,9 +170,22 @@ namespace app_001
             if (sorteoTipo == "grupo")
             {
                 ventanaConfigGrupos.SetActive(true);
+                
                 CargaTodosLosGruposAlDropdown();
+                BuscaGrupoEnUso();
                 //ventanaGruposConfig = true;
                 //ventanaNumerosConfig = false;
+            }
+        }
+        public void BuscaGrupoEnUso()
+        {
+            for (int i = 0; i < desplegableGrupos.options.Count; i++)
+            {
+                if (desplegableGrupos.options[i].text == auxiliarGrupoEnUso)
+                {
+                    desplegableGrupos.value = i;
+                    desplegableGrupos.RefreshShownValue();
+                }
             }
         }
         public void BotonConfiguracionPodio()
@@ -187,6 +207,7 @@ namespace app_001
         }
         public void BotonGo()
         {
+            GuardaDatosPersistentesConfig();
             gestorDeGrupos.GuardarDatosPersistentes();
             PlayerPrefs.Save();
             SceneManager.LoadScene(2);
@@ -251,8 +272,11 @@ namespace app_001
                 digitosParticipantesText.text = auxiliarDigitosParticipantes;
             }
         }
-        public void BotonCancelCerrarVentana()
-        {
+
+        //temporalmente en desuso. 
+        //esta funsion se ampliará o modificará en otra posible version para que al presionar el boton de
+        //cancelar se reviertan los cambios efectuados en los grupos y no se guarden en el playerprefs.
+        public void BotonCancelCerrarVentana()         {
             ventanaConfigNumero.SetActive(false);
             ventanaConfigGrupos.SetActive(false);
             fondoDisufo.SetActive(false);
@@ -281,16 +305,26 @@ namespace app_001
             grupoActualmenteSeleccionado = desplegableGrupos.options[desplegableGrupos.value].text;
             nombreGrupoSeleccionadoText.text = grupoActualmenteSeleccionado;        
             gestorDeGrupos.GuardarDatosPersistentes();
+            auxiliarGrupoEnUso = grupoActualmenteSeleccionado;
+            gestorDeGrupos.grupoSeleccionado = grupoActualmenteSeleccionado;
+            GuardaDatosPersistentesConfig();
             PlayerPrefs.Save();
+            
             ventanaConfigGrupos.SetActive(false);
             fondoDisufo.SetActive(false);
+            configGrupo = false;
         }
         public void BotonAgregarIntegrante()
         {
+            subVentanitaIntegranteNuevoText.text = "";
             fondoDisufoSubVentana.SetActive(true);
             subVentanaIntegranteNuevo.SetActive(true);
         }
-
+        public void BotonIntegranteSeleccinoado()
+        {
+            subVentanaEditarIntegrante.SetActive(true);
+            fondoDisufoSubVentana.SetActive(true);
+        }
         public void BotonAgregarGrupo()
         {
             bool puedeAgregarGrupo = gestorDeGrupos.ReportarCantidadGrupos();
@@ -312,6 +346,18 @@ namespace app_001
             subVentanitaGrupoNuevoText.text = desplegableGrupos.options[desplegableGrupos.value].text;
             fondoDisufoSubVentana.SetActive(true);
             subVentanaGrupoNuevo.SetActive(true);
+        }
+        public void EliminaIntegrante(/*MasterServerEvent msEvent*/)
+        {
+
+            fondoDisufoSubVentana.SetActive(false);
+            subVentanaEditarIntegrante.SetActive(false);
+        }
+        public void EditaIntegrante()
+        {
+
+            fondoDisufoSubVentana.SetActive(false);
+            subVentanaEditarIntegrante.SetActive(false);
         }
 
         /*********** SUB-VENTANA INGRESO NOMBRE DE GRUPO NUEVO ****************************************************************************** */
@@ -388,9 +434,6 @@ namespace app_001
             {
                 desplegableGrupos.options.RemoveAt(index);
             }
-
-
-
             desplegableGrupos.RefreshShownValue();
             fondoDisufoSubVentana.SetActive(false);
             mensajeConfirmaEliminacion.SetActive(false);
@@ -413,23 +456,37 @@ namespace app_001
             fondoDisufoSubVentana.SetActive(false);
             subVentanaIntegranteNuevo.SetActive(false);
         }
-        public void BotonOKSubVentanaIntegrante(string nombreIntegrante)
+        public void BotonOKSubVentanaIntegrante()
         {
-           /* nombreIntegrante = subVentanitaIntegranteNuevoText.text.Trim(); // Obtener el texto del campo de entrada y eliminar espacios en blanco
-            if (nombreIntegrante.Length > 0)
+            string nombreIngresado = subVentanitaIntegranteNuevoText.text.Trim().ToUpper();
+            if(nombreIngresado != "")
             {
-                // Aquí se debería agregar el integrante al grupo seleccionado
-                // Por ejemplo, si se está trabajando con un array de strings:
-                // grupo_01.Add(nombreIntegrante);
-                Debug.Log("Integrante agregado: " + nombreIntegrante);
+                GameObject nuevoIntegrante = Instantiate(botonBT, contenidoScrollView);
+                TextMeshProUGUI textoBoton = nuevoIntegrante.GetComponentInChildren<TextMeshProUGUI>();
+                if (textoBoton != null)
+                {
+                    textoBoton.text = nombreIngresado;
+                }
+
+                Button botonComponente = nuevoIntegrante.GetComponent<Button>();
+                if (botonComponente != null)
+                {
+                    botonComponente.onClick.AddListener(BotonIntegranteSeleccinoado);
+                }
+
+                gestorDeGrupos.GestorDeIntegrantes(indexDropdown, grupoActualmenteSeleccionado, nombreIngresado);
+                fondoDisufoSubVentana.SetActive(false);
+                subVentanaIntegranteNuevo.SetActive(false);
             }
-            else
-            {
-                mensajeFaltaDeCaracteres.SetActive(true);
-            } */
-            fondoDisufoSubVentana.SetActive(false);
-            subVentanaIntegranteNuevo.SetActive(false);
+            
         }
+        /************ SERVICIOS DE CARGA DE INTEGRANTES POR GRUPO ****************************************************************************** */
+
+        public void PasaIntegrantePorGrupoCorrespondiente()
+        {
+
+        }
+
 
         /************ SERVICIOS DE CARGA DE DATOS EN PANTALLA ****************************************************************************** */
         public void CargaGrupoAlDropdown(string grupoNuevo)
@@ -458,24 +515,51 @@ namespace app_001
             desplegableGrupos.AddOptions(opciones);
             desplegableGrupos.RefreshShownValue();
 
-            /*
-            string grupos_auxiliar = gestorDeGrupos.PasaDatosPersistentesGrupos(10);
-            string[] array_grupos_auxiliar = grupos_auxiliar.Split(',');
-            int index = 0;
-            desplegableGrupos.ClearOptions();
-            while (index < array_grupos_auxiliar.Length)
+        }
+        public void CargaDatosGenerales()
+        {
+            cantidadParticipantesText.text = sorteoNumerosCant.ToString();
+            cantidadGanadoresNumeroText.text = podioNumerosCant.ToString();
+            cantidadGanadoresGruposText.text = podioGruposCant.ToString();
+            if (auxiliarGrupoEnUso == null || auxiliarGrupoEnUso == "")
             {
-                desplegableGrupos.options[index].text = array_grupos_auxiliar[index];
-                index++;
+                nombreGrupoSeleccionadoText.text = desplegableGrupos.options[0].text;
             }
-            desplegableGrupos.RefreshShownValue();
-            */
+            else
+            {
+                nombreGrupoSeleccionadoText.text = auxiliarGrupoEnUso;
+            }
+            
+            if (sorteoSeleccionado == "grupo")
+            {
+                sorteoTipo = "grupo";
+                imagenTapaNumero.SetActive(true);
+                imagenTapaGrupo.SetActive(false);
+            }
+            else 
+            {
+                sorteoTipo = "numero";
+                imagenTapaNumero.SetActive(false);
+                imagenTapaGrupo.SetActive(true);
+            }
         }
 
         /************ SERVICIO GUARDADO DE DATOS PERSISTENTES  ****************************************************************************** */
         public void GuardaDatosPersistentesConfig()
         {
+            int _sorteoNumerosCant = sorteoNumerosCant;
+            int _podioNumerosCant = podioNumerosCant;
+            int _podioGruposCant = podioGruposCant;
+            string _sorteoSeleccionado = sorteoSeleccionado;
+            string _auxiliarGrupoEnUso = auxiliarGrupoEnUso;
 
+            PlayerPrefs.SetInt("sorteoNumerosCant", _sorteoNumerosCant);
+            PlayerPrefs.SetInt("podioNumerosCant", _podioNumerosCant);
+            PlayerPrefs.SetInt("podioGruposCant", _podioGruposCant);
+            PlayerPrefs.SetString("sorteoSeleccionado", _sorteoSeleccionado);
+            PlayerPrefs.SetString("grupoEnUso", _auxiliarGrupoEnUso);
+
+            PlayerPrefs.Save();
         }
         /************ SERVICIO RECUPERACION DE DATOS PERSISTENTES  ****************************************************************************** */
         public void RecuperacionDatosPersistentesGruposThis()
@@ -489,6 +573,20 @@ namespace app_001
                     auxiliarGrupo[i] = temp[i];
                 }
             }
+        }
+        public void RecuperacionDatosPersistentesGenerales()
+        {
+            int _sorteoNumerosCant = PlayerPrefs.GetInt("sorteoNumerosCant", 3);
+            int _podioNumerosCant = PlayerPrefs.GetInt("podioNumerosCant", 1);
+            int _podioGruposCant = PlayerPrefs.GetInt("podioGruposCant", 1);
+            string _sorteoSeleccionado = PlayerPrefs.GetString("sorteoSeleccionado", "numero");
+            string _auxiliarGrupoEnUso = PlayerPrefs.GetString("grupoEnUso", "");
+
+            sorteoNumerosCant = _sorteoNumerosCant;
+            podioNumerosCant = _podioNumerosCant;
+            podioGruposCant = _podioGruposCant;
+            sorteoSeleccionado = _sorteoSeleccionado;
+            auxiliarGrupoEnUso = _auxiliarGrupoEnUso;
         }
 
         /************ CARGA GRUPOS POR DEFECTO PARA USUARIO POR PRIMERA VEZ  ****************************************************************************** */
@@ -504,8 +602,9 @@ namespace app_001
                     //gestorDeGrupos.AgregarGrupo(grupoPorDefecto);
                     item++;
                 }
- 
-     
+            auxiliarGrupoEnUso = "FAMILIA";
+
+
         }
     }
 }
