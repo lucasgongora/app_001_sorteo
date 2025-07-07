@@ -337,6 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86c8d4915bf650e4a8b1b7b384a30a55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cantIntegrantesPorGrupo: 15
   grupos:
   - 
   - 
@@ -360,6 +361,7 @@ MonoBehaviour:
   grupo_09: []
   grupoSeleccionado: 
   indiceDropDownGrupoSeleccionado: 0
+  indiceIntegranteGrupo: 0
 --- !u!4 &57465821
 Transform:
   m_ObjectHideFlags: 0
@@ -6655,6 +6657,7 @@ MonoBehaviour:
   indexDropdown: 0
   valueDropdown: 
   edicionGrupo: 0
+  configGrupo: 0
   auxiliarGrupo: []
   botonBT: {fileID: 175032206552772352, guid: 11005551bcd184d47a6a5ada43674f69, type: 3}
   contenidoScrollView: {fileID: 1074060245}

@@ -74,8 +74,13 @@ namespace app_001
         public GameObject botonBT;
         public Transform contenidoScrollView;
 
+        // Variables para manejo de integrantes
+        private bool edicionIntegrante = false;
+        private GameObject botonIntegranteSeleccionado;
+        private int indiceIntegranteSeleccionado = -1;
         private string[] auxiliarIntegrantes;
         private string auxiliarGrupoEnUso;
+        private int valorAnteriorDropdown = -1; // Variable para guardar el valor anterior
         /****************************************************************************************** */
 
         private void Awake()
@@ -102,14 +107,25 @@ namespace app_001
         // Update is called once per frame
         void Update()
         {
-            if (configGrupo)
+            if (configGrupo && desplegableGrupos != null)
             {
-                grupoActualmenteSeleccionado = desplegableGrupos.options[desplegableGrupos.value].text;
-                gestorDeGrupos.grupoSeleccionado = grupoActualmenteSeleccionado;
-                indexDropdown = desplegableGrupos.value;
-                gestorDeGrupos.indiceDropDownGrupoSeleccionado = indexDropdown;
+                // Verificar que el dropdown tiene opciones
+                if (desplegableGrupos.options.Count > 0)
+                {
+                    grupoActualmenteSeleccionado = desplegableGrupos.options[desplegableGrupos.value].text;
+                    gestorDeGrupos.grupoSeleccionado = grupoActualmenteSeleccionado;
+                    indexDropdown = desplegableGrupos.value;
+                    gestorDeGrupos.indiceDropDownGrupoSeleccionado = indexDropdown;
+
+                    // Solo ejecutar si el valor del dropdown cambió
+                    if (indexDropdown != valorAnteriorDropdown)
+                    {
+                        CargaBotonesIntegrantesGrupoSeleccionado(indexDropdown);
+                        valorAnteriorDropdown = indexDropdown;
+                    }
+                }
             }
-            
+
         }
         public bool VerificacionDatosVacios()
         {
@@ -162,10 +178,7 @@ namespace app_001
                 ventanaConfigNumero.SetActive(true);
                 digitosParticipantesText.text = cantidadParticipantes.ToString();
                 auxiliarDigitosParticipantes = "";
-                //ventanaNumerosConfig = true;
-                //ventanaGruposConfig = false;
-                //digitosParticipantes = "";
-                //digitosParticipantesText.text = cantidadParticipantes.ToString();
+                
             }
             if (sorteoTipo == "grupo")
             {
@@ -173,8 +186,7 @@ namespace app_001
                 
                 CargaTodosLosGruposAlDropdown();
                 BuscaGrupoEnUso();
-                //ventanaGruposConfig = true;
-                //ventanaNumerosConfig = false;
+                
             }
         }
         public void BuscaGrupoEnUso()
@@ -347,7 +359,7 @@ namespace app_001
             fondoDisufoSubVentana.SetActive(true);
             subVentanaGrupoNuevo.SetActive(true);
         }
-        public void EliminaIntegrante(/*MasterServerEvent msEvent*/)
+        public void EliminaIntegrante()
         {
 
             fondoDisufoSubVentana.SetActive(false);
@@ -355,7 +367,10 @@ namespace app_001
         }
         public void EditaIntegrante()
         {
-
+            edicionIntegrante = true;
+            subVentanitaIntegranteNuevoText.text = /*aqui va el ingreso del texto que tiene adentro el boton en cuestion*/ "";
+            fondoDisufoSubVentana.SetActive(true);
+            subVentanaIntegranteNuevo.SetActive(true);
             fondoDisufoSubVentana.SetActive(false);
             subVentanaEditarIntegrante.SetActive(false);
         }
@@ -434,7 +449,16 @@ namespace app_001
             {
                 desplegableGrupos.options.RemoveAt(index);
             }
+            gestorDeGrupos.ReagrupacionIntegrantes(index);
             desplegableGrupos.RefreshShownValue();
+
+            // Eliminar todos los botones del scrollView
+            for (int i = contenidoScrollView.childCount - 1; i >= 0; i--)
+            {
+                Destroy(contenidoScrollView.GetChild(i).gameObject);
+                CargaBotonesIntegrantesGrupoSeleccionado(index);
+            }
+
             fondoDisufoSubVentana.SetActive(false);
             mensajeConfirmaEliminacion.SetActive(false);
 
@@ -458,35 +482,147 @@ namespace app_001
         }
         public void BotonOKSubVentanaIntegrante()
         {
+            //nombre ingresado por la ventana de texto
             string nombreIngresado = subVentanitaIntegranteNuevoText.text.Trim().ToUpper();
-            if(nombreIngresado != "")
+            
+            if(nombreIngresado != "")  //si el nombre no es vacio...
             {
+                //creo un objeto nuevo para instanciar un boton dentro del scrollView
                 GameObject nuevoIntegrante = Instantiate(botonBT, contenidoScrollView);
+                // le imprimo el nombre ingresado en el campo de texto del boton
                 TextMeshProUGUI textoBoton = nuevoIntegrante.GetComponentInChildren<TextMeshProUGUI>();
                 if (textoBoton != null)
                 {
                     textoBoton.text = nombreIngresado;
                 }
 
+                // le asigno un listener al boton para que al hacer click se llame a la funcion BotonIntegranteSeleccinoado
                 Button botonComponente = nuevoIntegrante.GetComponent<Button>();
                 if (botonComponente != null)
                 {
                     botonComponente.onClick.AddListener(BotonIntegranteSeleccinoado);
                 }
-
+                
                 gestorDeGrupos.GestorDeIntegrantes(indexDropdown, grupoActualmenteSeleccionado, nombreIngresado);
                 fondoDisufoSubVentana.SetActive(false);
                 subVentanaIntegranteNuevo.SetActive(false);
             }
             
         }
-        /************ SERVICIOS DE CARGA DE INTEGRANTES POR GRUPO ****************************************************************************** */
-
-        public void PasaIntegrantePorGrupoCorrespondiente()
+        /************ SERVICIOS DE CARGA DE INTEGRANTES POR GRUPO EN PANTALLA SCROLL-VIEW ****************************************************************************** */
+        public void LimpiarScrollView()
         {
+            // Eliminar todos los botones del scrollView
+            for (int i = contenidoScrollView.childCount - 1; i >= 0; i--)
+            {
+                Destroy(contenidoScrollView.GetChild(i).gameObject);
+            }
+        }
+        public void CargaBotonesIntegrantesGrupoSeleccionado(int indexDropDown)
+        {
+            // Primero limpiar el scrollView para no acumular botones
+            LimpiarScrollView();
 
+            // Verificar que el dropdown tiene opciones
+            if (desplegableGrupos.options.Count == 0)
+            {
+                Debug.Log("No hay grupos en el dropdown");
+                return;
+            }
+
+            // Verificar que el índice es válido
+            if (indexDropDown < 0 || indexDropDown >= desplegableGrupos.options.Count)
+            {
+                Debug.Log("Índice de dropdown inválido: " + indexDropDown);
+                return;
+            }
+
+            // Obtener el grupo seleccionado
+            string grupoSeleccionado = desplegableGrupos.options[indexDropDown].text;
+
+            // Encontrar el array de integrantes del grupo
+            string[] arrayGrupoAuxiliar = null;
+
+            // Buscar el grupo en el array de grupos y obtener sus integrantes
+            for (int i = 0; i < gestorDeGrupos.grupos.Length; i++)
+            {
+                if (gestorDeGrupos.grupos[i] == grupoSeleccionado)
+                {
+                    // Obtener el array correcto según el índice
+                    switch (i)
+                    {
+                        case 0: arrayGrupoAuxiliar = gestorDeGrupos.grupo_00; break;
+                        case 1: arrayGrupoAuxiliar = gestorDeGrupos.grupo_01; break;
+                        case 2: arrayGrupoAuxiliar = gestorDeGrupos.grupo_02; break;
+                        case 3: arrayGrupoAuxiliar = gestorDeGrupos.grupo_03; break;
+                        case 4: arrayGrupoAuxiliar = gestorDeGrupos.grupo_04; break;
+                        case 5: arrayGrupoAuxiliar = gestorDeGrupos.grupo_05; break;
+                        case 6: arrayGrupoAuxiliar = gestorDeGrupos.grupo_06; break;
+                        case 7: arrayGrupoAuxiliar = gestorDeGrupos.grupo_07; break;
+                        case 8: arrayGrupoAuxiliar = gestorDeGrupos.grupo_08; break;
+                        case 9: arrayGrupoAuxiliar = gestorDeGrupos.grupo_09; break;
+                    }
+                    break;
+                }
+            }
+
+            // Verificar que se encontró el array
+            if (arrayGrupoAuxiliar == null)
+            {
+                Debug.Log("No se encontró el grupo: " + grupoSeleccionado);
+                return;
+            }
+
+            // Verificar que el array tiene elementos
+            if (arrayGrupoAuxiliar.Length == 0)
+            {
+                Debug.Log("El grupo " + grupoSeleccionado + " no tiene integrantes");
+                return;
+            }
+
+            // Cargar los integrantes en el scrollView
+            for (int i = 0; i < gestorDeGrupos.cantIntegrantesPorGrupo - 1; i++)
+            {
+                // Verificar que el índice es válido
+                if (i < arrayGrupoAuxiliar.Length)
+                {
+                    if (!string.IsNullOrEmpty(arrayGrupoAuxiliar[i]))
+                    {
+                        string nombre = arrayGrupoAuxiliar[i];
+                        AgregaUnBoton(nombre);
+                    }
+                    else
+                    {
+                        // Si encuentra una posición vacía, salir del bucle
+                        break;
+                    }
+                }
+                else
+                {
+                    // Si el índice es mayor que el tamaño del array, salir
+                    break;
+                }
+            }
         }
 
+        public void AgregaUnBoton(string nombre)
+        {
+            //creo un objeto nuevo para instanciar un boton dentro del scrollView
+            GameObject nuevoIntegrante = Instantiate(botonBT, contenidoScrollView);
+            // le imprimo el nombre ingresado en el campo de texto del boton
+            TextMeshProUGUI textoBoton = nuevoIntegrante.GetComponentInChildren<TextMeshProUGUI>();
+            if (textoBoton != null)
+            {
+                textoBoton.text = nombre;
+            }
+
+            // le asigno un listener al boton para que al hacer click se llame a la funcion BotonIntegranteSeleccinoado
+            Button botonComponente = nuevoIntegrante.GetComponent<Button>();
+            if (botonComponente != null)
+            {
+                botonComponente.onClick.AddListener(BotonIntegranteSeleccinoado);
+            }
+        }
 
         /************ SERVICIOS DE CARGA DE DATOS EN PANTALLA ****************************************************************************** */
         public void CargaGrupoAlDropdown(string grupoNuevo)

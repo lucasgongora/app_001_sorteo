@@ -8,7 +8,7 @@ namespace app_001
 {
     public class GestorDeGrupos : MonoBehaviour
     {
-
+        public int cantIntegrantesPorGrupo = 15;
         public string[] grupos = new string[10];
         public string[] grupo_00;
         public string[] grupo_01;
@@ -22,78 +22,268 @@ namespace app_001
         public string[] grupo_09;
         public string grupoSeleccionado;
         public int indiceDropDownGrupoSeleccionado = 0;
-
+        public int indiceIntegranteGrupo;
         private void Awake()
         {
-            
+            // Inicializar todos los arrays con el tamaño deseado
+            grupo_00 = new string[cantIntegrantesPorGrupo];
+            grupo_01 = new string[cantIntegrantesPorGrupo];
+            grupo_02 = new string[cantIntegrantesPorGrupo];
+            grupo_03 = new string[cantIntegrantesPorGrupo];
+            grupo_04 = new string[cantIntegrantesPorGrupo];
+            grupo_05 = new string[cantIntegrantesPorGrupo];
+            grupo_06 = new string[cantIntegrantesPorGrupo];
+            grupo_07 = new string[cantIntegrantesPorGrupo];
+            grupo_08 = new string[cantIntegrantesPorGrupo];
+            grupo_09 = new string[cantIntegrantesPorGrupo];
         }
         // Start is called before the first frame update
         void Start()
         {
-            
+
         }
 
         // Update is called once per frame
         void Update()
         {
-        
+
         }
 
-        public void DireccionadorGrupo(string grupo)
+        public string[] GrupoParaCargarBotones(int grupo)
         {
-            
+            string[] array = new string[cantIntegrantesPorGrupo];
+            switch (grupo)
+            {
+                case 0:
+                    array = grupo_00;
+                    break;
+                case 1:
+                    array = grupo_01;
+                    break;
+                case 2:
+                    array = grupo_02;
+                    break;
+                case 3:
+                    array = grupo_03;
+                    break;
+                case 4:
+                    array = grupo_04;
+                    break;
+                case 5:
+                    array = grupo_05;
+                    break;
+                case 6:
+                    array = grupo_06;
+                    break;
+                case 7:
+                    array = grupo_07;
+                    break;
+                case 8:
+                    array = grupo_08;
+                    break;
+                case 9:
+                    array = grupo_09;
+                    break;
+            }
+            return array;
         }
 
         public void GestorDeIntegrantes(int index, string grupo, string integrante)
         {
+            // Verificar que el grupo existe en la posición indicada
             if (grupos[index] == grupo)
             {
                 switch (index)
                 {
                     case 0:
-                        Array.Resize(ref grupo_00, grupo_00.Length + 1);
-                        grupo_00[grupo_00.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_00, integrante);
                         break;
                     case 1:
-                        Array.Resize(ref grupo_01, grupo_01.Length + 1);
-                        grupo_01[grupo_01.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_01, integrante);
                         break;
                     case 2:
-                        Array.Resize(ref grupo_02, grupo_02.Length + 1);
-                        grupo_02[grupo_02.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_02, integrante);
                         break;
                     case 3:
-                        Array.Resize(ref grupo_03, grupo_03.Length + 1);
-                        grupo_03[grupo_03.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_03, integrante);
                         break;
                     case 4:
-                        Array.Resize(ref grupo_04, grupo_04.Length + 1);
-                        grupo_04[grupo_04.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_04, integrante);
                         break;
                     case 5:
-                        Array.Resize(ref grupo_05, grupo_05.Length + 1);
-                        grupo_05[grupo_05.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_05, integrante);
                         break;
                     case 6:
-                        Array.Resize(ref grupo_06, grupo_06.Length + 1);
-                        grupo_06[grupo_06.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_06, integrante);
                         break;
                     case 7:
-                        Array.Resize(ref grupo_07, grupo_07.Length + 1);
-                        grupo_07[grupo_07.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_07, integrante);
                         break;
                     case 8:
-                        Array.Resize(ref grupo_08, grupo_08.Length + 1);
-                        grupo_08[grupo_08.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_08, integrante);
                         break;
                     case 9:
-                        Array.Resize(ref grupo_09, grupo_09.Length + 1);
-                        grupo_09[grupo_09.Length - 1] = integrante;
+                        AgregarIntegranteAGrupo(ref grupo_09, integrante);
                         break;
                 }
-            };
+            }
         }
 
+        // Nueva función auxiliar que maneja la lógica de agregar integrantes
+        private void AgregarIntegranteAGrupo(ref string[] grupoArray, string integrante)
+        {
+            // Si el array es null o vacío, crear uno con 1 elemento
+            if (grupoArray == null || grupoArray.Length == 0)
+            {
+                grupoArray = new string[1];
+                grupoArray[0] = integrante;
+                return;
+            }
+
+            // Buscar la primera posición vacía
+            int posicionVacia = BuscarPrimeraPosicionVacia(grupoArray);
+
+            // Si encontró una posición vacía, usar esa
+            if (posicionVacia < grupoArray.Length)
+            {
+                grupoArray[posicionVacia] = integrante;
+            }
+            else
+            {
+                // Si no hay posiciones vacías, redimensionar y agregar al final
+                Array.Resize(ref grupoArray, grupoArray.Length + 1);
+                grupoArray[grupoArray.Length - 1] = integrante;
+            }
+        }
+
+        // Función mejorada para detectar posiciones vacías
+        private int BuscarPrimeraPosicionVacia(string[] grupoArray)
+        {
+            for (int i = 0; i < grupoArray.Length; i++)
+            {
+                // Verificar si la posición está vacía o es null
+                if (string.IsNullOrEmpty(grupoArray[i]))
+                {
+                    return i; // Retorna la primera posición vacía encontrada
+                }
+            }
+
+            // Si no encontró posiciones vacías, retorna el tamaño del array
+            return grupoArray.Length;
+        }
+        public void ReagrupacionIntegrantes(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    grupo_00 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 1:
+                    grupo_01 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 2:
+                    grupo_02 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 3:
+                    grupo_03 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 4:
+                    grupo_04 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 5:
+                    grupo_05 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 6:
+                    grupo_06 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 7:
+                    grupo_07 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 8:
+                    grupo_08 = new string[cantIntegrantesPorGrupo];
+                    break;
+                case 9:
+                    grupo_09 = new string[cantIntegrantesPorGrupo];
+                    break;
+            }
+            for(int i = index; i < grupos.Length; i++)
+            {
+                IntercambiarIntegrantes(i);
+            }
+        }
+        public void IntercambiarIntegrantes(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    if (grupo_01 != null && grupo_00 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_01.Length, grupo_00.Length);
+                        Array.Copy(grupo_01, grupo_00, tamanoACopiar);
+                    }
+                    break;
+                case 1:
+                    if (grupo_02 != null && grupo_01 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_02.Length, grupo_01.Length);
+                        Array.Copy(grupo_02, grupo_01, tamanoACopiar);
+                    }
+                    break;
+                case 2:
+                    if (grupo_03 != null && grupo_02 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_03.Length, grupo_02.Length);
+                        Array.Copy(grupo_03, grupo_02, tamanoACopiar);
+                    }
+                    break;
+                case 3:
+                    if (grupo_04 != null && grupo_03 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_04.Length, grupo_03.Length);
+                        Array.Copy(grupo_04, grupo_03, tamanoACopiar);
+                    }
+                    break;
+                case 4:
+                    if (grupo_05 != null && grupo_04 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_05.Length, grupo_04.Length);
+                        Array.Copy(grupo_05, grupo_04, tamanoACopiar);
+                    }
+                    break;
+                case 5:
+                    if (grupo_06 != null && grupo_05 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_06.Length, grupo_05.Length);
+                        Array.Copy(grupo_06, grupo_05, tamanoACopiar);
+                    }
+                    break;
+                case 6:
+                    if (grupo_07 != null && grupo_06 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_07.Length, grupo_06.Length);
+                        Array.Copy(grupo_07, grupo_06, tamanoACopiar);
+                    }
+                    break;
+                case 7:
+                    if (grupo_08 != null && grupo_07 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_08.Length, grupo_07.Length);
+                        Array.Copy(grupo_08, grupo_07, tamanoACopiar);
+                    }
+                    break;
+                case 8:
+                    if (grupo_09 != null && grupo_08 != null)
+                    {
+                        int tamanoACopiar = Math.Min(grupo_09.Length, grupo_08.Length);
+                        Array.Copy(grupo_09, grupo_08, tamanoACopiar);
+                    }
+                    break;
+                case 9:
+                    grupo_09 = new string[cantIntegrantesPorGrupo];
+                    break;
+            }
+        }
+        // Función auxiliar para copiar arrays correctamente
         public void AgregarGrupo(string nombreGrupo)
         {
             for (int i = 0; i < grupos.Length; i++)
@@ -196,8 +386,10 @@ namespace app_001
                     Debug.LogError("ID de grupo no válido: " + ID);
                     return "";
             }
-            
+
         }
+
+
 
         /************ SERVICIOS DE GUARDADO DE DATOS PERSISTENTES ****************************************************************************** */
         public void GuardarDatosPersistentes()
@@ -261,6 +453,7 @@ namespace app_001
             grupo_09 = _grupo_09.Split(',');
             grupoSeleccionado = _grupoSeleccionado;
             indiceDropDownGrupoSeleccionado = _indiceDropDownGrupoSeleccionado;
-        }   
+        }
+
     }
 }
