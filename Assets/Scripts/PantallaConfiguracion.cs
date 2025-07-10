@@ -19,8 +19,7 @@ namespace app_001
         /**************** Variables PERSISTENTES *****************************************/
         [Header("************* DATOS PERSISTENTES ************************************************************************")]
         public bool premium = false;
-        //   public bool speedFast = false;
-        //   public bool sound = true;
+        
         public int sorteoNumerosCant;
         public int podioNumerosCant;
         public int podioGruposCant;
@@ -334,6 +333,15 @@ namespace app_001
         }
         public void BotonIntegranteSeleccinoado()
         {
+            // Capturar el botón que fue clickeado
+            botonIntegranteSeleccionado = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+
+            // Obtener el índice del botón en el ScrollView
+            if (botonIntegranteSeleccionado != null)
+            {
+                indiceIntegranteSeleccionado = botonIntegranteSeleccionado.transform.GetSiblingIndex();
+            }
+
             subVentanaEditarIntegrante.SetActive(true);
             fondoDisufoSubVentana.SetActive(true);
         }
@@ -361,18 +369,43 @@ namespace app_001
         }
         public void EliminaIntegrante()
         {
+            if (botonIntegranteSeleccionado != null)
+            {
+                // Obtener el texto del botón antes de destruirlo
+                TextMeshProUGUI textoBoton = botonIntegranteSeleccionado.GetComponentInChildren<TextMeshProUGUI>();
+                string nombreIntegrante = textoBoton != null ? textoBoton.text : "";
+
+                // Eliminar del gestor de grupos
+                gestorDeGrupos.EliminarIntegrante(grupoActualmenteSeleccionado, nombreIntegrante);
+
+                // Destruir el botón del ScrollView
+                Destroy(botonIntegranteSeleccionado);
+
+                // Limpiar referencia
+                botonIntegranteSeleccionado = null;
+                indiceIntegranteSeleccionado = -1;
+            }
 
             fondoDisufoSubVentana.SetActive(false);
             subVentanaEditarIntegrante.SetActive(false);
         }
         public void EditaIntegrante()
         {
-            edicionIntegrante = true;
-            subVentanitaIntegranteNuevoText.text = /*aqui va el ingreso del texto que tiene adentro el boton en cuestion*/ "";
-            fondoDisufoSubVentana.SetActive(true);
-            subVentanaIntegranteNuevo.SetActive(true);
-            fondoDisufoSubVentana.SetActive(false);
-            subVentanaEditarIntegrante.SetActive(false);
+            if (botonIntegranteSeleccionado != null)
+            {
+                // Obtener el texto actual del botón
+                TextMeshProUGUI textoBoton = botonIntegranteSeleccionado.GetComponentInChildren<TextMeshProUGUI>();
+                string textoActual = textoBoton != null ? textoBoton.text : "";
+
+                // Poner el texto actual en el campo de entrada
+                subVentanitaIntegranteNuevoText.text = textoActual;
+
+                edicionIntegrante = true;
+                fondoDisufoSubVentana.SetActive(true);
+                subVentanaIntegranteNuevo.SetActive(true);
+                fondoDisufoSubVentana.SetActive(false);
+                subVentanaEditarIntegrante.SetActive(false);
+            }
         }
 
         /*********** SUB-VENTANA INGRESO NOMBRE DE GRUPO NUEVO ****************************************************************************** */
@@ -482,32 +515,52 @@ namespace app_001
         }
         public void BotonOKSubVentanaIntegrante()
         {
-            //nombre ingresado por la ventana de texto
             string nombreIngresado = subVentanitaIntegranteNuevoText.text.Trim().ToUpper();
-            
-            if(nombreIngresado != "")  //si el nombre no es vacio...
+
+            if (nombreIngresado != "")
             {
-                //creo un objeto nuevo para instanciar un boton dentro del scrollView
-                GameObject nuevoIntegrante = Instantiate(botonBT, contenidoScrollView);
-                // le imprimo el nombre ingresado en el campo de texto del boton
-                TextMeshProUGUI textoBoton = nuevoIntegrante.GetComponentInChildren<TextMeshProUGUI>();
-                if (textoBoton != null)
+                if (edicionIntegrante && botonIntegranteSeleccionado != null)
                 {
-                    textoBoton.text = nombreIngresado;
+                    // Modo edición: actualizar el botón existente
+                    TextMeshProUGUI textoBoton = botonIntegranteSeleccionado.GetComponentInChildren<TextMeshProUGUI>();
+                    if (textoBoton != null)
+                    {
+                        // Obtener el texto anterior para actualizar en el gestor
+                        string textoAnterior = textoBoton.text;
+                        textoBoton.text = nombreIngresado;
+
+                        // Actualizar en el gestor de grupos
+                        gestorDeGrupos.EditarIntegrante(grupoActualmenteSeleccionado, textoAnterior, nombreIngresado);
+                    }
+
+                    // Limpiar variables de edición
+                    edicionIntegrante = false;
+                    botonIntegranteSeleccionado = null;
+                    indiceIntegranteSeleccionado = -1;
+                }
+                else
+                {
+                    // Modo agregar: crear nuevo botón (código existente)
+                    GameObject nuevoIntegrante = Instantiate(botonBT, contenidoScrollView);
+                    TextMeshProUGUI textoBoton = nuevoIntegrante.GetComponentInChildren<TextMeshProUGUI>();
+                    if (textoBoton != null)
+                    {
+                        textoBoton.text = nombreIngresado;
+                    }
+
+                    Button botonComponente = nuevoIntegrante.GetComponent<Button>();
+                    if (botonComponente != null)
+                    {
+                        botonComponente.onClick.AddListener(BotonIntegranteSeleccinoado);
+                    }
+
+                    gestorDeGrupos.GestorDeIntegrantes(indexDropdown, grupoActualmenteSeleccionado, nombreIngresado);
                 }
 
-                // le asigno un listener al boton para que al hacer click se llame a la funcion BotonIntegranteSeleccinoado
-                Button botonComponente = nuevoIntegrante.GetComponent<Button>();
-                if (botonComponente != null)
-                {
-                    botonComponente.onClick.AddListener(BotonIntegranteSeleccinoado);
-                }
-                
-                gestorDeGrupos.GestorDeIntegrantes(indexDropdown, grupoActualmenteSeleccionado, nombreIngresado);
                 fondoDisufoSubVentana.SetActive(false);
                 subVentanaIntegranteNuevo.SetActive(false);
             }
-            
+
         }
         /************ SERVICIOS DE CARGA DE INTEGRANTES POR GRUPO EN PANTALLA SCROLL-VIEW ****************************************************************************** */
         public void LimpiarScrollView()
@@ -688,12 +741,14 @@ namespace app_001
             int _podioGruposCant = podioGruposCant;
             string _sorteoSeleccionado = sorteoSeleccionado;
             string _auxiliarGrupoEnUso = auxiliarGrupoEnUso;
+            int _indexDropdown = indexDropdown;
 
             PlayerPrefs.SetInt("sorteoNumerosCant", _sorteoNumerosCant);
             PlayerPrefs.SetInt("podioNumerosCant", _podioNumerosCant);
             PlayerPrefs.SetInt("podioGruposCant", _podioGruposCant);
             PlayerPrefs.SetString("sorteoSeleccionado", _sorteoSeleccionado);
             PlayerPrefs.SetString("grupoEnUso", _auxiliarGrupoEnUso);
+            PlayerPrefs.SetInt("indexDropdown", _indexDropdown);
 
             PlayerPrefs.Save();
         }

@@ -455,5 +455,178 @@ namespace app_001
             indiceDropDownGrupoSeleccionado = _indiceDropDownGrupoSeleccionado;
         }
 
+        /************ SERVICIO EDICION Y ELIMINACION DE INTEGRAANTES (hecha por CURSOR)  ****************************************************************************** */
+
+        public void EliminarIntegrante(string grupo, string nombreIntegrante)
+        {
+            // Paso 1: Encontrar el índice del grupo en el array "grupos"
+            int indiceGrupo = -1;
+            for (int i = 0; i < grupos.Length; i++)
+            {
+                if (grupos[i] == grupo)
+                {
+                    indiceGrupo = i;
+                    break;
+                }
+            }
+
+            // Paso 2: Si no se encontró el grupo, salir
+            if (indiceGrupo == -1)
+            {
+                Debug.LogWarning("No se encontró el grupo: " + grupo);
+                return;
+            }
+
+            // Paso 3: Obtener el array del grupo correspondiente
+            string[] arrayGrupo = null;
+            switch (indiceGrupo)
+            {
+                case 0: arrayGrupo = grupo_00; break;
+                case 1: arrayGrupo = grupo_01; break;
+                case 2: arrayGrupo = grupo_02; break;
+                case 3: arrayGrupo = grupo_03; break;
+                case 4: arrayGrupo = grupo_04; break;
+                case 5: arrayGrupo = grupo_05; break;
+                case 6: arrayGrupo = grupo_06; break;
+                case 7: arrayGrupo = grupo_07; break;
+                case 8: arrayGrupo = grupo_08; break;
+                case 9: arrayGrupo = grupo_09; break;
+            }
+
+            // Paso 4: Si el array es null, salir
+            if (arrayGrupo == null)
+            {
+                Debug.LogWarning("El array del grupo está vacío");
+                return;
+            }
+
+            // Paso 5: Buscar y eliminar el integrante
+            for (int i = 0; i < arrayGrupo.Length; i++)
+            {
+                if (arrayGrupo[i] == nombreIntegrante)
+                {
+                    // Encontramos el integrante, lo eliminamos poniendo null
+                    arrayGrupo[i] = null;
+
+                    // Reorganizar el array para que no queden espacios vacíos en el medio
+                    ReorganizarArray(ref arrayGrupo);
+
+                    // Actualizar el array correspondiente
+                    ActualizarArrayGrupo(indiceGrupo, arrayGrupo);
+
+                    Debug.Log("Integrante eliminado: " + nombreIntegrante + " del grupo: " + grupo);
+                    return;
+                }
+            }
+
+            // Si llegamos aquí, no se encontró el integrante
+            Debug.LogWarning("No se encontró el integrante: " + nombreIntegrante + " en el grupo: " + grupo);
+        }
+
+        // Función auxiliar para reorganizar el array (eliminar espacios vacíos)
+        private void ReorganizarArray(ref string[] array)
+        {
+            // Crear una lista temporal para almacenar solo los elementos no vacíos
+            List<string> elementosValidos = new List<string>();
+
+            // Recorrer el array y agregar solo los elementos que no sean null o vacíos
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(array[i]))
+                {
+                    elementosValidos.Add(array[i]);
+                }
+            }
+
+            // Crear un nuevo array con el tamaño correcto
+            array = new string[cantIntegrantesPorGrupo];
+
+            // Copiar los elementos válidos al nuevo array
+            for (int i = 0; i < elementosValidos.Count && i < cantIntegrantesPorGrupo; i++)
+            {
+                array[i] = elementosValidos[i];
+            }
+        }
+
+        // Función auxiliar para actualizar el array correspondiente
+        private void ActualizarArrayGrupo(int indiceGrupo, string[] nuevoArray)
+        {
+            switch (indiceGrupo)
+            {
+                case 0: grupo_00 = nuevoArray; break;
+                case 1: grupo_01 = nuevoArray; break;
+                case 2: grupo_02 = nuevoArray; break;
+                case 3: grupo_03 = nuevoArray; break;
+                case 4: grupo_04 = nuevoArray; break;
+                case 5: grupo_05 = nuevoArray; break;
+                case 6: grupo_06 = nuevoArray; break;
+                case 7: grupo_07 = nuevoArray; break;
+                case 8: grupo_08 = nuevoArray; break;
+                case 9: grupo_09 = nuevoArray; break;
+            }
+        }
+
+        public void EditarIntegrante(string grupo, string nombreAnterior, string nombreNuevo)
+        {
+            // Paso 1: Encontrar el índice del grupo en el array "grupos"
+            int indiceGrupo = -1;
+            for (int i = 0; i < grupos.Length; i++)
+            {
+                if (grupos[i] == grupo)
+                {
+                    indiceGrupo = i;
+                    break;
+                }
+            }
+
+            // Paso 2: Si no se encontró el grupo, salir
+            if (indiceGrupo == -1)
+            {
+                Debug.LogWarning("No se encontró el grupo: " + grupo);
+                return;
+            }
+
+            // Paso 3: Obtener el array del grupo correspondiente
+            string[] arrayGrupo = null;
+            switch (indiceGrupo)
+            {
+                case 0: arrayGrupo = grupo_00; break;
+                case 1: arrayGrupo = grupo_01; break;
+                case 2: arrayGrupo = grupo_02; break;
+                case 3: arrayGrupo = grupo_03; break;
+                case 4: arrayGrupo = grupo_04; break;
+                case 5: arrayGrupo = grupo_05; break;
+                case 6: arrayGrupo = grupo_06; break;
+                case 7: arrayGrupo = grupo_07; break;
+                case 8: arrayGrupo = grupo_08; break;
+                case 9: arrayGrupo = grupo_09; break;
+            }
+
+            // Paso 4: Si el array es null, salir
+            if (arrayGrupo == null)
+            {
+                Debug.LogWarning("El array del grupo está vacío");
+                return;
+            }
+
+            // Paso 5: Buscar y editar el integrante
+            for (int i = 0; i < arrayGrupo.Length; i++)
+            {
+                if (arrayGrupo[i] == nombreAnterior)
+                {
+                    // Encontramos el integrante, lo editamos
+                    arrayGrupo[i] = nombreNuevo;
+
+                    // Actualizar el array correspondiente
+                    ActualizarArrayGrupo(indiceGrupo, arrayGrupo);
+
+                    Debug.Log("Integrante editado: " + nombreAnterior + " -> " + nombreNuevo + " en el grupo: " + grupo);
+                    return;
+                }
+            }
+
+            // Si llegamos aquí, no se encontró el integrante
+            Debug.LogWarning("No se encontró el integrante: " + nombreAnterior + " en el grupo: " + grupo);
+        }
     }
 }
