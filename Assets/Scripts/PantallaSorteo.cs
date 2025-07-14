@@ -77,11 +77,11 @@ namespace app_001
             }
             if(sorteoSeleccionado == "numero")
             {
-                indicadorSorteo.text = numerosParaSorteo.ToString() + " PARTICIPANTES";
+                indicadorSorteo.text = numerosParaSorteo.ToString() + " PARTICIPANTS";
             }
             else
             {
-                indicadorSorteo.text = "GRUPO " + grupoSeleccionado.ToUpper();
+                indicadorSorteo.text = "GROUP " + grupoSeleccionado.ToUpper();
             }
             grupoParaSorteo = gestorDeGrupos.GrupoParaCargarBotones(indexDropdown);
             arrayRuleta = LimpiaGrupo(grupoParaSorteo);
@@ -180,7 +180,7 @@ namespace app_001
                 ruleta.SetActive(true);
                 botonGo.SetActive(false);
                 ganador.SetActive(false);
-                ganadorText.text = "GANADOR: " + nuevoGanador;
+                ganadorText.text = "WINNER: " + nuevoGanador;
                 Invoke("ContinuaSorteo", tiempoSorteando);
             }
             else
@@ -373,12 +373,12 @@ namespace app_001
                 contador = 0;
                 contPodios = 0;
                 contPodiosGrupo = 0;
-                ganadorPrimero.text = "GANADOR";
-                ganadorSegundo.text = "SEGUNDO";
-                ganadorTercero.text = "TERCERO";
-                ganadorCuarto.text = "CUARTO";
-                ganadorQuinto.text = "QUINTO";
-                ganadorSexto.text = "SEXTO";
+                ganadorPrimero.text = "WINNER";
+                ganadorSegundo.text = "2°";
+                ganadorTercero.text = "3°";
+                ganadorCuarto.text = "4°";
+                ganadorQuinto.text = "5°";
+                ganadorSexto.text = "6°";
 
                 ganadoresNoRepetirNum[0] = 0;
                 ganadoresNoRepetirNum[1] = 0;

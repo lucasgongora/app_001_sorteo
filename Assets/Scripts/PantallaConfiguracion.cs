@@ -825,7 +825,7 @@ namespace app_001
         public void CargaGruposPorDefecto()
         {
          
-                string[] elements = new string[] {"FAMILIA","AMIGOS","TRABAJO"};
+                string[] elements = new string[] {"FAMILY","FRIENDS","SCHOOL"};
                 int item = 0;
                 while (item < 3)
                 {
@@ -834,7 +834,7 @@ namespace app_001
                     //gestorDeGrupos.AgregarGrupo(grupoPorDefecto);
                     item++;
                 }
-            auxiliarGrupoEnUso = "FAMILIA";
+            auxiliarGrupoEnUso = "FAMILY";
 
 
         }
