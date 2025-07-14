@@ -8,7 +8,8 @@ using UnityEngine.UI;
 using System;
 using System.IO;
 using app_001;
-using static UnityEditor.Progress;
+//using static UnityEditor.Progress;
+using System.Linq;
 
 namespace app_001
 {
@@ -46,6 +47,8 @@ namespace app_001
         [SerializeField] private GameObject subVentanaEditarIntegrante;
         [SerializeField] private GameObject mensajeFaltaDeCaracteres;
         [SerializeField] private GameObject mensajeNoMasGrupos;
+        [SerializeField] private GameObject mensajeTamañoNumero;
+        [SerializeField] private GameObject mensajeNoMasNombres;
         [SerializeField] private GameObject mensajeConfirmaEliminacion;
         [SerializeField] private GameObject mensajeNoEliminarUltimoGrupo;
 
@@ -66,6 +69,7 @@ namespace app_001
 
         public int indexDropdown;
         public string valueDropdown;
+        public bool edicionNumeros;
         public bool edicionGrupo;
         public bool configGrupo;
         public string[] auxiliarGrupo = new string[10]; // Array para almacenar los grupos
@@ -237,17 +241,12 @@ namespace app_001
         /************ VENTANA CONFIGURACION PODIO DE GANADORES ****************************************************************************** */
         public void BotonIncrementaGanadores()
         {
-            
-            if (auxiliarCantidadGanadores < 6)
+            if (auxiliarCantidadGanadores < 6 )
             {
                 auxiliarCantidadGanadores++;
                 if (ventanitaGanadoresPodioText != null)
                 {
                     ventanitaGanadoresPodioText.text = auxiliarCantidadGanadores.ToString();
-                }
-                else
-                {
-                    Debug.LogError("¡Error! El componente TextMeshProUGUI no está asignado en el Inspector.");
                 }
             } 
         }
@@ -282,8 +281,18 @@ namespace app_001
                 auxiliarDigitosParticipantes += digitos;
                 digitosParticipantesText.text = auxiliarDigitosParticipantes;
             }
+            else
+            {
+                fondoDisufoSubVentana.SetActive(true);
+                mensajeTamañoNumero.SetActive(true);
+            }
         }
 
+        public void BotonCerrarTamañoNumero()
+        {
+            fondoDisufoSubVentana.SetActive(false);
+            mensajeTamañoNumero.SetActive(false);
+        }
         //temporalmente en desuso. 
         //esta funsion se ampliará o modificará en otra posible version para que al presionar el boton de
         //cancelar se reviertan los cambios efectuados en los grupos y no se guarden en el playerprefs.
@@ -311,6 +320,13 @@ namespace app_001
         }
 
         /************ VENTANA CONFIGURACION Y GESTION DE GRUPOS E INTEGRANTES ****************************************************************************** */
+
+        public string[] LimpiaGrupo(string[] grupo)
+        {
+            string[] array = grupo;
+            array = array.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            return array;
+        }
         public void BotonOKGrupos()
         {
             grupoActualmenteSeleccionado = desplegableGrupos.options[desplegableGrupos.value].text;
@@ -327,6 +343,13 @@ namespace app_001
         }
         public void BotonAgregarIntegrante()
         {
+            auxiliarGrupo = gestorDeGrupos.ObtenerGrupoPorNombre(grupoActualmenteSeleccionado);
+            if (LimpiaGrupo(auxiliarGrupo).Length > gestorDeGrupos.cantIntegrantesPorGrupo - 1)
+            {
+                fondoDisufoSubVentana.SetActive(true);
+                mensajeNoMasNombres.SetActive(true);
+                return;
+            }
             subVentanitaIntegranteNuevoText.text = "";
             fondoDisufoSubVentana.SetActive(true);
             subVentanaIntegranteNuevo.SetActive(true);
@@ -410,8 +433,15 @@ namespace app_001
 
         /*********** SUB-VENTANA INGRESO NOMBRE DE GRUPO NUEVO ****************************************************************************** */
         public void BotonOkGrupoNuevo()
-        {   
-            if(edicionGrupo == false)
+        {
+            // Verificar que el campo de texto no esté vacío
+            if (string.IsNullOrEmpty(subVentanitaGrupoNuevoText.text.Trim()))
+            {
+                fondoDisufoSubVentana.SetActive(true);
+                mensajeFaltaDeCaracteres.SetActive(true);
+                return;
+            }
+            if (edicionGrupo == false)
             {
                 auxiliarGrupoNuevoIngresado = subVentanitaGrupoNuevoText.text.Trim().ToUpper();
                 CargaGrupoAlDropdown(auxiliarGrupoNuevoIngresado);// Obtener el texto del campo de entrada y eliminar espacios en blanco
@@ -506,6 +536,11 @@ namespace app_001
             mensajeNoMasGrupos.SetActive(false);
             fondoDisufoSubVentana.SetActive(false);
         }
+        public void BotonCerrarMensajeNoMasNombres()
+        {
+            fondoDisufoSubVentana.SetActive(false);
+            mensajeNoMasNombres.SetActive(false);
+        }
 
         /************ SUB-VENTANA INGRESO NOMBRE DE INTEGRANTE NUEVO ****************************************************************************** */
         public void BotonCancelarSubVentanaIntegrante()
@@ -562,7 +597,13 @@ namespace app_001
             }
 
         }
-        /************ SERVICIOS DE CARGA DE INTEGRANTES POR GRUPO EN PANTALLA SCROLL-VIEW ****************************************************************************** */
+        public void BotonCerrarMensajeLetras()
+        {
+            fondoDisufoSubVentana.SetActive(false);
+            mensajeFaltaDeCaracteres.SetActive(false);
+        }
+
+    /************ SERVICIOS DE CARGA DE INTEGRANTES POR GRUPO EN PANTALLA SCROLL-VIEW ****************************************************************************** */
         public void LimpiarScrollView()
         {
             // Eliminar todos los botones del scrollView

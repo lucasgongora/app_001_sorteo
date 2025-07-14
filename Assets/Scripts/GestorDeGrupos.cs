@@ -88,6 +88,29 @@ namespace app_001
             return array;
         }
 
+        public string[] ObtenerGrupoPorNombre(string nombreGrupo)
+        {
+            for (int i = 0; i < grupos.Length; i++)
+            {
+                if (grupos[i] == nombreGrupo)
+                {
+                    switch (i)
+                    {
+                        case 0: return grupo_00;
+                        case 1: return grupo_01;
+                        case 2: return grupo_02;
+                        case 3: return grupo_03;
+                        case 4: return grupo_04;
+                        case 5: return grupo_05;
+                        case 6: return grupo_06;
+                        case 7: return grupo_07;
+                        case 8: return grupo_08;
+                        case 9: return grupo_09;
+                    }
+                }
+            }
+            return null; // Si no se encuentra el grupo
+        }
         public void GestorDeIntegrantes(int index, string grupo, string integrante)
         {
             // Verificar que el grupo existe en la posición indicada
@@ -283,6 +306,8 @@ namespace app_001
                     break;
             }
         }
+        
+
         // Función auxiliar para copiar arrays correctamente
         public void AgregarGrupo(string nombreGrupo)
         {

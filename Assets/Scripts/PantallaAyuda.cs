@@ -19,6 +19,15 @@ namespace app_001
         
         }
 
+        public void AbrirLinkedIn()
+        {
+            Application.OpenURL("https://www.linkedin.com/in/lucas-góngora-developer-games-unity-a714256b");
+        }
+
+        public void AbrirKlanstart()
+        {
+            Application.OpenURL("https://www.klanstart.com/");
+        }
         public void BotonVolver()
         {
             SceneManager.LoadScene(0);

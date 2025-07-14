@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using GoogleMobileAds.Api;
 
 namespace app_001
 {
@@ -46,7 +47,15 @@ namespace app_001
         public int indexRandom;
 
         public GestorDeGrupos gestorDeGrupos;
+        public GestorPublicidad gestorPublicidad;
 
+        public int[] ganadoresNoRepetirNum = new int[6];
+        private string[] ganadoresNoRepetirGrup = new string[6];
+        private int contPodios;
+        private int contPodiosGrupo;
+        private bool repetido;
+        private bool sorteando;
+        private int contadorSorteosHechos;
 
         public void Awake()
         {
@@ -56,8 +65,11 @@ namespace app_001
         // Start is called before the first frame update
         void Start()
         {
+            contPodios = 0;
             contador = 0;
-            tiempoSorteando = 5f;
+            contadorSorteosHechos = 0;
+            sorteando = false;
+
             // Verificar que gestorDeGrupos no sea null antes de usarlo
             if (gestorDeGrupos != null)
             {
@@ -83,28 +95,122 @@ namespace app_001
 
         /************ PANTALLA PRINCIPAL - BOTON ACCION Y NAVEGACION  ****************************************************************************** */
 
-
+        public void SumarRandom(int num)
+        {
+            ganadoresNoRepetirNum[contPodios] = num;
+            contPodios++;
+        }
         public void BotonGo()
         {
-            if(sorteoSeleccionado == "numero" && numerosParaSorteo > 0 && contador != cantPodioNum)
+            sorteando = true;
+            if (speedFast == false)
             {
-                numeroRandom = Random.Range(1, numerosParaSorteo);
+                tiempoSorteando = 6f;
+            }
+            else
+            {
+                tiempoSorteando = 1.5f;
+            }
+
+            if (sorteoSeleccionado == "numero" && numerosParaSorteo > 0 && contador != cantPodioNum)
+            {
+                int intentos = 0;
+                const int maxIntentos = 100; // Evita bucles infinitos
+                int nuevoNumero;
+
+                do
+                {
+                    nuevoNumero = Random.Range(1, numerosParaSorteo + 1);
+                    intentos++;
+                    if (intentos > maxIntentos)
+                    {
+                        Debug.LogWarning("No se pudo encontrar un número no repetido.");
+                        return;
+                    }
+                } while (ComprobarRepetidos(nuevoNumero));
+
+                numeroRandom = nuevoNumero;
+                SumarRandom(numeroRandom);
+
                 ruleta.SetActive(true);
                 botonGo.SetActive(false);
                 ganador.SetActive(false);
                 ganadorText.text = "GANADOR: " + numeroRandom.ToString();
                 Invoke("ContinuaSorteo", tiempoSorteando);
-
             }
-            else if(sorteoSeleccionado == "grupo" && grupoParaSorteo.Length > 0)
+            else if (sorteoSeleccionado == "grupo" && grupoParaSorteo != null && grupoParaSorteo.Length > 0 && arrayRuleta != null && arrayRuleta.Length > 0 && contador != cantPodioGrupo)
             {
-                indexRandom = Random.Range(0, arrayRuleta.Length);
+                int intentos = 0;
+                const int maxIntentos = 100;
+                string nuevoGanador;
+
+                do
+                {
+                    // Verificar que arrayRuleta tenga elementos antes de acceder
+                    if (arrayRuleta.Length == 0)
+                    {
+                        Debug.LogError("arrayRuleta está vacío. No se puede realizar el sorteo.");
+                        return;
+                    }
+
+                    int index = Random.Range(0, arrayRuleta.Length);
+                    indexRandom = index; // Guardar el índice seleccionado
+                    nuevoGanador = arrayRuleta[index];
+                    intentos++;
+                    if (intentos > maxIntentos)
+                    {
+                        Debug.LogWarning("No se pudo encontrar un ganador de grupo no repetido.");
+                        return;
+                    }
+                } while (ComprobarRepetidosGrupo(nuevoGanador));
+
+                // Verificar que contPodiosGrupo no exceda el tamaño del array
+                if (contPodiosGrupo < ganadoresNoRepetirGrup.Length)
+                {
+                    // Guardar el ganador en el array de ganadores de grupo
+                    ganadoresNoRepetirGrup[contPodiosGrupo] = nuevoGanador;
+                    contPodiosGrupo++;
+                }
+                else
+                {
+                    Debug.LogWarning("Se ha alcanzado el límite máximo de ganadores de grupo.");
+                    return;
+                }
+
                 ruleta.SetActive(true);
                 botonGo.SetActive(false);
                 ganador.SetActive(false);
-                
+                ganadorText.text = "GANADOR: " + nuevoGanador;
+                Invoke("ContinuaSorteo", tiempoSorteando);
+            }
+            else
+            {
+                Debug.LogWarning("No se puede realizar el sorteo. Verificar configuración.");
+            }
+        }
 
-            }   
+        public bool ComprobarRepetidos(int num)
+        {
+            for (int i = 0; i < contPodios; i++)
+            {
+                if (ganadoresNoRepetirNum[i] == num)
+                {
+                    return true; // El número ya fue sorteado antes
+                }
+            }
+            return false; // El número no está repetido
+        }
+
+        public bool ComprobarRepetidosGrupo(string nombre)
+        {
+            for (int i = 0; i < contPodiosGrupo; i++)
+            {
+                if (ganadoresNoRepetirGrup[i] == nombre)
+                {
+                    return true; // Ya fue ganador
+                }
+            }
+            return false; // No fue ganador
         }
 
 
@@ -113,7 +219,7 @@ namespace app_001
             ganador.SetActive(false);
             ruleta.SetActive(false);
             botonGo.SetActive(true);
-
+            
             ImprimirTablaNumeros();
         }
 
@@ -126,28 +232,64 @@ namespace app_001
 
         public void ImprimirTablaNumeros()
         {
-            switch (contador)
+            if (sorteoSeleccionado == "numero")
             {
-                case 0:
-                    ganadorPrimero.text = numeroRandom.ToString();
-                    break;
-                case 1:
-                    ganadorSegundo.text = numeroRandom.ToString();
-                    break;
-                case 2:
-                    ganadorTercero.text = numeroRandom.ToString();
-                    break;
-                case 3:
-                    ganadorCuarto.text = numeroRandom.ToString();
-                    break;
-                case 4:
-                    ganadorQuinto.text = numeroRandom.ToString();
-                    break;
-                case 5:
-                    ganadorSexto.text = numeroRandom.ToString();
-                    break;
+                switch (contador)
+                {
+                    case 0:
+                        ganadorPrimero.text = numeroRandom.ToString();
+                        break;
+                    case 1:
+                        ganadorSegundo.text = numeroRandom.ToString();
+                        break;
+                    case 2:
+                        ganadorTercero.text = numeroRandom.ToString();
+                        break;
+                    case 3:
+                        ganadorCuarto.text = numeroRandom.ToString();
+                        break;
+                    case 4:
+                        ganadorQuinto.text = numeroRandom.ToString();
+                        break;
+                    case 5:
+                        ganadorSexto.text = numeroRandom.ToString();
+                        break;
+                }
+            }
+            if (sorteoSeleccionado == "grupo")
+            {
+                // Verificar que indexRandom sea válido y arrayRuleta tenga elementos
+                if (arrayRuleta != null && indexRandom >= 0 && indexRandom < arrayRuleta.Length)
+                {
+                    switch (contador)
+                    {
+                        case 0:
+                            ganadorPrimero.text = arrayRuleta[indexRandom].ToString();
+                            break;
+                        case 1:
+                            ganadorSegundo.text = arrayRuleta[indexRandom].ToString();
+                            break;
+                        case 2:
+                            ganadorTercero.text = arrayRuleta[indexRandom].ToString();
+                            break;
+                        case 3:
+                            ganadorCuarto.text = arrayRuleta[indexRandom].ToString();
+                            break;
+                        case 4:
+                            ganadorQuinto.text = arrayRuleta[indexRandom].ToString();
+                            break;
+                        case 5:
+                            ganadorSexto.text = arrayRuleta[indexRandom].ToString();
+                            break;
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Error: indexRandom inválido o arrayRuleta vacío");
+                }
             }
             contador++;
+            sorteando = false;
         }
         public void BotonVolverPantalla()
         {
@@ -212,19 +354,39 @@ namespace app_001
             }
             PlayerPrefs.Save();
         }
-        
+
         public void BotonReset()
         {
-            botonGo.SetActive(true);
-            ruleta.SetActive(false);
-            ganador.SetActive(false);
-            contador = 0;
-            ganadorPrimero.text = "GANADOR";
-            ganadorSegundo.text = "SEGUNDO";
-            ganadorTercero.text = "TERCERO";
-            ganadorCuarto.text = "CUARTO";
-            ganadorQuinto.text = "QUINTO";
-            ganadorSexto.text = "SEXTO";
+            if (!sorteando)
+            {
+                if (contadorSorteosHechos == 3)
+                {
+                    contadorSorteosHechos = 0;
+                    ShowInterstitialAd();
+
+                }
+
+                contadorSorteosHechos++;
+                botonGo.SetActive(true);
+                ruleta.SetActive(false);
+                ganador.SetActive(false);
+                contador = 0;
+                contPodios = 0;
+                contPodiosGrupo = 0;
+                ganadorPrimero.text = "GANADOR";
+                ganadorSegundo.text = "SEGUNDO";
+                ganadorTercero.text = "TERCERO";
+                ganadorCuarto.text = "CUARTO";
+                ganadorQuinto.text = "QUINTO";
+                ganadorSexto.text = "SEXTO";
+
+                ganadoresNoRepetirNum[0] = 0;
+                ganadoresNoRepetirNum[1] = 0;
+                ganadoresNoRepetirNum[2] = 0;
+                ganadoresNoRepetirNum[3] = 0;
+                ganadoresNoRepetirNum[4] = 0;
+                ganadoresNoRepetirNum[5] = 0;
+            }
         }
 
         /************ SERVICIO RECUPERACION DE DATOS PERSISTENTES  ****************************************************************************** */
@@ -236,12 +398,14 @@ namespace app_001
                 speedFast = true;
                 tortuga.SetActive(false);
                 liebre.SetActive(true);
+                tiempoSorteando = 1.5f;
             }
             else
             {
                 speedFast = false;
                 tortuga.SetActive(true);
                 liebre.SetActive(false);
+                tiempoSorteando = 6f;
             }
 
             int _sound = PlayerPrefs.GetInt("sound");
@@ -272,6 +436,22 @@ namespace app_001
             indexDropdown = _indexDropdown;
 
 
+        }
+
+
+        /************ SERVICIO MUESTRA PUBLICIDAD INTERSTITIAL  ****************************************************************************** */
+
+        public void ShowInterstitialAd()
+        {
+            if (gestorPublicidad.interstitialAd != null && gestorPublicidad.interstitialAd.CanShowAd())
+            {
+                Debug.Log("Showing interstitial ad.");
+                gestorPublicidad.interstitialAd.Show();
+            }
+            else
+            {
+                Debug.LogError("Interstitial ad is not ready yet.");
+            }
         }
     }
 }

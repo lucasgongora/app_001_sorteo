@@ -15,9 +15,12 @@ EditorBuildSettings:
     path: Assets/Scenes/04_Sorteos.unity
     guid: ede9455e628b81140a5f7c65b757a4b0
   - enabled: 1
-    path: Assets/Scenes/05_Creditos.unity
+    path: "Assets/Scenes/05_Creditos_Espa\xF1ol.unity"
     guid: 3ccec1578b742eb4a8caf5e06c204bee
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 97f2465c84498604cbad02ff2ff66162, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 5c22bcff6c7996c42911f31d5e6eb69d, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 04f54275dacc48047929cb7c5067e5d7, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 7f9db3ca1a06ad14d985d6c4dd9155bf, type: 2}
     com.unity.addressableassets: {fileID: 11400000, guid: 986a3db50e002a742bec31ddeeef7fc9, type: 2}
     com.unity.localization.settings: {fileID: 11400000, guid: cb68442bd3dd9534586438779131907c, type: 2}
