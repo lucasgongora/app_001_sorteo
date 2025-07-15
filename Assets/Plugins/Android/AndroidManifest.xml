@@ -1,0 +1,36 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.klanstartstudio.eenymeeny">
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/app_icon"
+        xmlns:tools="http://schemas.android.com/tools">
+
+        <!-- Actividad principal de Unity -->
+        <activity android:name="com.unity3d.player.UnityPlayerActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|uiMode"
+            android:screenOrientation="fullSensor"
+            android:launchMode="singleTask"
+            android:hardwareAccelerated="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Meta-data de AdMob SOLO AQUÍ -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8076857562878493~6134821982"/>
+
+        <!-- Puedes dejar el OPTIMIZE_AD_LOADING si lo necesitas 
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="false"/>
+
+            -->
+
+    </application>
+</manifest>

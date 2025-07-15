@@ -104,6 +104,11 @@ namespace app_001
         // Start is called before the first frame update
         void Start()
         {
+            // Mostrar banner de AdMob al entrar a la pantalla
+            if (GestorPublicidad.instance != null)
+            {
+                GestorPublicidad.instance.MostrarBanner();
+            }
             configGrupo = false;    
         }
 

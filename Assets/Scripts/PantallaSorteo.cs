@@ -47,7 +47,6 @@ namespace app_001
         public int indexRandom;
 
         public GestorDeGrupos gestorDeGrupos;
-        public GestorPublicidad gestorPublicidad;
 
         public int[] ganadoresNoRepetirNum = new int[6];
         private string[] ganadoresNoRepetirGrup = new string[6];
@@ -69,6 +68,12 @@ namespace app_001
             contador = 0;
             contadorSorteosHechos = 0;
             sorteando = false;
+
+            // Mostrar banner de AdMob al entrar a la pantalla
+            if (GestorPublicidad.instance != null)
+            {
+                GestorPublicidad.instance.MostrarBanner();
+            }
 
             // Verificar que gestorDeGrupos no sea null antes de usarlo
             if (gestorDeGrupos != null)
@@ -124,7 +129,7 @@ namespace app_001
                     intentos++;
                     if (intentos > maxIntentos)
                     {
-                        Debug.LogWarning("No se pudo encontrar un número no repetido.");
+                        Debug.LogWarning("No se pudo encontrar un nï¿½mero no repetido.");
                         return;
                     }
                 } while (ComprobarRepetidos(nuevoNumero));
@@ -149,12 +154,12 @@ namespace app_001
                     // Verificar que arrayRuleta tenga elementos antes de acceder
                     if (arrayRuleta.Length == 0)
                     {
-                        Debug.LogError("arrayRuleta está vacío. No se puede realizar el sorteo.");
+                        Debug.LogError("arrayRuleta estï¿½ vacï¿½o. No se puede realizar el sorteo.");
                         return;
                     }
 
                     int index = Random.Range(0, arrayRuleta.Length);
-                    indexRandom = index; // Guardar el índice seleccionado
+                    indexRandom = index; // Guardar el ï¿½ndice seleccionado
                     nuevoGanador = arrayRuleta[index];
                     intentos++;
                     if (intentos > maxIntentos)
@@ -164,7 +169,7 @@ namespace app_001
                     }
                 } while (ComprobarRepetidosGrupo(nuevoGanador));
 
-                // Verificar que contPodiosGrupo no exceda el tamaño del array
+                // Verificar que contPodiosGrupo no exceda el tamaï¿½o del array
                 if (contPodiosGrupo < ganadoresNoRepetirGrup.Length)
                 {
                     // Guardar el ganador en el array de ganadores de grupo
@@ -173,7 +178,7 @@ namespace app_001
                 }
                 else
                 {
-                    Debug.LogWarning("Se ha alcanzado el límite máximo de ganadores de grupo.");
+                    Debug.LogWarning("Se ha alcanzado el lï¿½mite mï¿½ximo de ganadores de grupo.");
                     return;
                 }
 
@@ -185,7 +190,7 @@ namespace app_001
             }
             else
             {
-                Debug.LogWarning("No se puede realizar el sorteo. Verificar configuración.");
+                Debug.LogWarning("No se puede realizar el sorteo. Verificar configuraciï¿½n.");
             }
         }
 
@@ -195,10 +200,10 @@ namespace app_001
             {
                 if (ganadoresNoRepetirNum[i] == num)
                 {
-                    return true; // El número ya fue sorteado antes
+                    return true; // El nï¿½mero ya fue sorteado antes
                 }
             }
-            return false; // El número no está repetido
+            return false; // El nï¿½mero no estï¿½ repetido
         }
 
         public bool ComprobarRepetidosGrupo(string nombre)
@@ -258,7 +263,7 @@ namespace app_001
             }
             if (sorteoSeleccionado == "grupo")
             {
-                // Verificar que indexRandom sea válido y arrayRuleta tenga elementos
+                // Verificar que indexRandom sea vï¿½lido y arrayRuleta tenga elementos
                 if (arrayRuleta != null && indexRandom >= 0 && indexRandom < arrayRuleta.Length)
                 {
                     switch (contador)
@@ -285,7 +290,7 @@ namespace app_001
                 }
                 else
                 {
-                    Debug.LogError("Error: indexRandom inválido o arrayRuleta vacío");
+                    Debug.LogError("Error: indexRandom invï¿½lido o arrayRuleta vacï¿½o");
                 }
             }
             contador++;
@@ -297,7 +302,7 @@ namespace app_001
         }
         public void BotonCerrarApp()
         {
-            PlayerPrefs.Save(); // Asegurarse de guardar los cambios antes de cerrar la aplicación
+            PlayerPrefs.Save(); // Asegurarse de guardar los cambios antes de cerrar la aplicaciï¿½n
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else
@@ -374,11 +379,11 @@ namespace app_001
                 contPodios = 0;
                 contPodiosGrupo = 0;
                 ganadorPrimero.text = "WINNER";
-                ganadorSegundo.text = "2°";
-                ganadorTercero.text = "3°";
-                ganadorCuarto.text = "4°";
-                ganadorQuinto.text = "5°";
-                ganadorSexto.text = "6°";
+                ganadorSegundo.text = "2Â°";
+                ganadorTercero.text = "3Â°";
+                ganadorCuarto.text = "4Â°";
+                ganadorQuinto.text = "5Â°";
+                ganadorSexto.text = "6Â°";
 
                 ganadoresNoRepetirNum[0] = 0;
                 ganadoresNoRepetirNum[1] = 0;
@@ -443,14 +448,13 @@ namespace app_001
 
         public void ShowInterstitialAd()
         {
-            if (gestorPublicidad.interstitialAd != null && gestorPublicidad.interstitialAd.CanShowAd())
+            if (GestorPublicidad.instance != null)
             {
-                Debug.Log("Showing interstitial ad.");
-                gestorPublicidad.interstitialAd.Show();
+                GestorPublicidad.instance.MostrarInterstitial();
             }
             else
             {
-                Debug.LogError("Interstitial ad is not ready yet.");
+                Debug.LogError("GestorPublicidad instance is null.");
             }
         }
     }
