@@ -96,7 +96,7 @@ namespace app_001
             {
                 gestorDeGrupos.RecuperacionDatosPersistentesGrupos();
             }
-            //sorteoTipo = "grupo";
+            
             RecuperacionDatosPersistentesGenerales();
             CargaDatosGenerales(); 
 
@@ -104,6 +104,7 @@ namespace app_001
         // Start is called before the first frame update
         void Start()
         {
+            
             // Mostrar banner de AdMob al entrar a la pantalla
             if (GestorPublicidad.instance != null)
             {
@@ -818,12 +819,14 @@ namespace app_001
             int _podioGruposCant = PlayerPrefs.GetInt("podioGruposCant", 1);
             string _sorteoSeleccionado = PlayerPrefs.GetString("sorteoSeleccionado", "numero");
             string _auxiliarGrupoEnUso = PlayerPrefs.GetString("grupoEnUso", "");
+            int _indexDropdown = PlayerPrefs.GetInt("indexDropdown", 0);
 
             sorteoNumerosCant = _sorteoNumerosCant;
             podioNumerosCant = _podioNumerosCant;
             podioGruposCant = _podioGruposCant;
             sorteoSeleccionado = _sorteoSeleccionado;
             auxiliarGrupoEnUso = _auxiliarGrupoEnUso;
+            indexDropdown = _indexDropdown;
         }
 
         /************ CARGA GRUPOS POR DEFECTO PARA USUARIO POR PRIMERA VEZ  ****************************************************************************** */

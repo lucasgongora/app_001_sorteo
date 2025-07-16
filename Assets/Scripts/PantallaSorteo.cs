@@ -54,7 +54,7 @@ namespace app_001
         private int contPodiosGrupo;
         private bool repetido;
         private bool sorteando;
-        private int contadorSorteosHechos;
+        private int contadorReseteosHechos;
 
         public void Awake()
         {
@@ -66,7 +66,7 @@ namespace app_001
         {
             contPodios = 0;
             contador = 0;
-            contadorSorteosHechos = 0;
+            contadorReseteosHechos = 0;
             sorteando = false;
 
             // Mostrar banner de AdMob al entrar a la pantalla
@@ -107,7 +107,7 @@ namespace app_001
         }
         public void BotonGo()
         {
-            sorteando = true;
+            
             if (speedFast == false)
             {
                 tiempoSorteando = 6f;
@@ -117,8 +117,9 @@ namespace app_001
                 tiempoSorteando = 1.5f;
             }
 
-            if (sorteoSeleccionado == "numero" && numerosParaSorteo > 0 && contador != cantPodioNum)
+            if (sorteoSeleccionado == "numero" && numerosParaSorteo > 0 && contador < cantPodioNum)
             {
+                sorteando = true; // Indica que se est� sorteando
                 int intentos = 0;
                 const int maxIntentos = 100; // Evita bucles infinitos
                 int nuevoNumero;
@@ -131,9 +132,9 @@ namespace app_001
                     {
                         Debug.LogWarning("No se pudo encontrar un n�mero no repetido.");
                         return;
-                    }
+                    }  
                 } while (ComprobarRepetidos(nuevoNumero));
-
+                Debug.LogWarning("cantidad de contador: " + contador);
                 numeroRandom = nuevoNumero;
                 SumarRandom(numeroRandom);
 
@@ -145,6 +146,7 @@ namespace app_001
             }
             else if (sorteoSeleccionado == "grupo" && grupoParaSorteo != null && grupoParaSorteo.Length > 0 && arrayRuleta != null && arrayRuleta.Length > 0 && contador != cantPodioGrupo)
             {
+                sorteando = true; // Indica que se est� sorteando
                 int intentos = 0;
                 const int maxIntentos = 100;
                 string nuevoGanador;
@@ -168,7 +170,7 @@ namespace app_001
                         return;
                     }
                 } while (ComprobarRepetidosGrupo(nuevoGanador));
-
+                
                 // Verificar que contPodiosGrupo no exceda el tama�o del array
                 if (contPodiosGrupo < ganadoresNoRepetirGrup.Length)
                 {
@@ -298,6 +300,7 @@ namespace app_001
         }
         public void BotonVolverPantalla()
         {
+
             SceneManager.LoadScene(1);
         }
         public void BotonCerrarApp()
@@ -364,14 +367,14 @@ namespace app_001
         {
             if (!sorteando)
             {
-                if (contadorSorteosHechos == 3)
+                if (contadorReseteosHechos == 3)
                 {
-                    contadorSorteosHechos = 0;
+                    contadorReseteosHechos = 0;
                     ShowInterstitialAd();
 
                 }
 
-                contadorSorteosHechos++;
+                contadorReseteosHechos++;
                 botonGo.SetActive(true);
                 ruleta.SetActive(false);
                 ganador.SetActive(false);

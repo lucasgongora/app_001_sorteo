@@ -2,7 +2,6 @@ using GoogleMobileAds.Api;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using GoogleMobileAds.Api;
 using GoogleMobileAds;
 using UnityEngine;
 
@@ -14,24 +13,24 @@ namespace app_001
         public static GestorPublicidad instance;
 
         // These ad units are configured to always serve test ads.
-        #if UNITY_ANDROID
-            private string adUnitIdInterstitial = "ca-app-pub-3940256099942544/1033173712";
-        #elif UNITY_IPHONE
+#if UNITY_ANDROID
+        private string adUnitIdInterstitial = "ca-app-pub-3940256099942544/1033173712";
+#elif UNITY_IPHONE
             private string adUnitIdInterstitial = "ca-app-pub-3940256099942544/4411468910";
-        #else
+#else
             private string adUnitIdInterstitial = "unused";
-        #endif
+#endif
 
         public InterstitialAd interstitialAd;
 
         // These ad units are configured to always serve test ads.
-        #if UNITY_ANDROID
-            private string adUnitIdBanner = "ca-app-pub-3940256099942544/6300978111";
-        #elif UNITY_IPHONE
+#if UNITY_ANDROID
+        private string adUnitIdBanner = "ca-app-pub-3940256099942544/6300978111";
+#elif UNITY_IPHONE
             private string adUnitIdBanner = "ca-app-pub-3940256099942544/2934735716";
-        #else
+#else
             private string adUnitIdBanner = "unused";
-        #endif
+#endif
 
         BannerView bannerView;
 
@@ -64,7 +63,7 @@ namespace app_001
         // Update is called once per frame
         void Update()
         {
-        
+
         }
 
         public void CreateBannerView()
@@ -84,11 +83,11 @@ namespace app_001
             var adRequest = new AdRequest();
 
             bannerView.LoadAd(adRequest);
-            
+
             // Configurar eventos del banner
             ListenToAdEvents();
         }
-        
+
         private void ListenToAdEvents()
         {
             // Raised when an ad is loaded into the banner view.
@@ -150,7 +149,7 @@ namespace app_001
             InterstitialAd.Load(adUnitIdInterstitial, adRequest,
                 (InterstitialAd ad, LoadAdError error) =>
                 {
-                    // Si hay error, la carga fallÃ³
+                    // Si hay error, la carga falló
                     if (error != null || ad == null)
                     {
                         Debug.LogError("Interstitial ad failed to load an ad with error: " + error);
@@ -161,7 +160,7 @@ namespace app_001
 
                     interstitialAd = ad;
 
-                    // Suscribirse al evento de cierre para recargar el interstitial automÃ¡ticamente
+                    // Suscribirse al evento de cierre para recargar el interstitial automáticamente
                     interstitialAd.OnAdFullScreenContentClosed += () =>
                     {
                         Debug.Log("Interstitial cerrado, recargando...");
@@ -180,7 +179,7 @@ namespace app_001
             }
         }
 
-        // MÃ©todos pÃºblicos para usar desde otras escenas
+        // Métodos públicos para usar desde otras escenas
         public void MostrarBanner()
         {
             CreateBannerView();
@@ -204,7 +203,7 @@ namespace app_001
             }
         }
 
-        // MÃ©todo para limpiar al destruir
+        // Método para limpiar al destruir
         void OnDestroy()
         {
             if (bannerView != null)
